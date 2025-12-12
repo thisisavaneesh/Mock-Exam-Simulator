@@ -1,6 +1,4 @@
-declare module "react-katex" {
-  import * as React from "react";
-
+// src/types.ts
 export type QuestionStatus =
   | 'unanswered'
   | 'answered'
@@ -23,21 +21,4 @@ export interface Question {
   answerIndex: number | null; 
   // NEW FIELD: Time spent on this specific question (in seconds)
   timeSpent: number; 
-}
-
-
-export interface BlockMathProps {
-    math: string;
-    // other props you might use
-    errorColor?: string;
-}
-  
-export interface InlineMathProps {
-    math: string;
-    // other props you might use
-    errorColor?: string;
-}
-
-  export class BlockMath extends React.Component<BlockMathProps> {}
-  export class InlineMath extends React.Component<InlineMathProps> {}
 }
