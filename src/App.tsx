@@ -51,7 +51,7 @@ function App() {
       setQuestions(prevQuestions => {
         const newQuestions = [...prevQuestions];
         // Record the elapsed time for the question we are leaving
-        (newQuestions[currentQuestionIndex] as any).timeSpent += questionTimer; 
+        newQuestions[currentQuestionIndex].timeSpent += questionTimer; 
         return newQuestions;
       });
     }
@@ -77,7 +77,7 @@ function App() {
     const newQuestions = [...questions];
     const currentQuestion = newQuestions[currentQuestionIndex];
     currentQuestion.answer = answer;
-    (currentQuestion as any).answerIndex = index; // Store index
+    currentQuestion.answerIndex = index; // Store index
 
     if (currentQuestion.status === 'unanswered' || currentQuestion.status === 'marked') {
        currentQuestion.status = 'answered';
@@ -204,7 +204,7 @@ function App() {
 
     currentQuestion.status = 'unanswered';
     currentQuestion.answer = null;
-    (currentQuestion as any).answerIndex = null; 
+    currentQuestion.answerIndex = null;  
 
     setQuestions(newQuestions);
   };

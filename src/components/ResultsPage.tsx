@@ -1,5 +1,5 @@
 // src/components/ResultsPage.tsx
-import React from 'react';
+
 import { Question } from '../types';
 // REQUIRED IMPORTS for KaTeX rendering in tables
 import 'katex/dist/katex.min.css';

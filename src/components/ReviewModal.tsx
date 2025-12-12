@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Question } from '../types';
 // KaTeX Imports for Review Modal
 import 'katex/dist/katex.min.css';
