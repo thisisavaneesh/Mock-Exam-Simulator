@@ -1,5 +1,9 @@
 // src/components/ResultsPage.tsx
+import React from 'react';
 import { Question } from '../types';
+// REQUIRED IMPORTS for KaTeX rendering in tables
+import 'katex/dist/katex.min.css';
+import { InlineMath } from 'react-katex';
 
 interface Props {
   questions: Question[];
@@ -10,21 +14,31 @@ interface Props {
     unattempted: number;
     timeTaken: number; // Received from App
   };
-  // NEW PROP: Function to open the review modal for a specific question
   onReviewQuestion: (question: Question) => void;
 }
+
+// Helper to render math (copied from QuestionContent)
+const parseText = (text: string) => {
+  if (!text) return "";
+  const parts = text.split('$');
+  return parts.map((part, index) => {
+    if (index % 2 === 1) {
+      return <InlineMath key={index} math={part} />;
+    }
+    // We allow basic HTML rendering here (for DI tables that might be included in answer/option)
+    return <span key={index} dangerouslySetInnerHTML={{__html: part}} />;
+  });
+};
+
 
 const ResultsPage = ({ questions, results, onReviewQuestion }: Props) => {
   // --- Analytics Calculations ---
   const totalAttempted = results.correct + results.incorrect;
   
-  // Accuracy: Correct / Attempted (Avoid division by zero)
   const accuracy = totalAttempted > 0 
     ? ((results.correct / totalAttempted) * 100).toFixed(2) 
     : '0.00';
 
-  // Avg Time per Question: Total Time / Total Questions (or attempted)
-  // Converting seconds to a readable string like "1m 30s"
   const avgTimeSeconds = questions.length > 0 
     ? Math.round(results.timeTaken / questions.length) 
     : 0;
@@ -35,7 +49,6 @@ const ResultsPage = ({ questions, results, onReviewQuestion }: Props) => {
     return `${m}m ${s}s`;
   };
   
-  // Helper to format Time Spent cell
   const formatTimeDetail = (secs: number) => {
     if (secs < 60) return `${secs}s`;
     const m = Math.floor(secs / 60);
@@ -45,16 +58,14 @@ const ResultsPage = ({ questions, results, onReviewQuestion }: Props) => {
 
   // Helper to format the answer text with Option Letters (A, B, C, D)
   const getOptionDisplay = (question: Question) => {
-    // Find the index of the correct answer text in the options array
     const correctIndex = question.options.findIndex(opt => opt === question.correct_answer);
     const correctLetter = correctIndex !== -1 ? String.fromCharCode(65 + correctIndex) : '';
 
-    // Accessing timeSpent (requires 'as any' for TypeScript safety on the custom field)
     const yourLetter = (question as any).answerIndex !== null 
       ? String.fromCharCode(65 + (question as any).answerIndex) 
       : '';
 
-    // Final Display logic (Option Letter + Answer Text)
+    // Final Display logic uses raw strings (not rendered components)
     const yourAnswerText = question.answer ? `(${yourLetter}) ${question.answer}` : 'Not Attempted';
     const correctAnswerText = correctLetter ? `(${correctLetter}) ${question.correct_answer}` : question.correct_answer;
 
@@ -99,34 +110,32 @@ const ResultsPage = ({ questions, results, onReviewQuestion }: Props) => {
                 <th className="py-3 px-6 text-left">Q.No</th>
                 <th className="py-3 px-6 text-left">Your Answer</th>
                 <th className="py-3 px-6 text-left">Correct Answer</th>
-                <th className="py-3 px-6 text-center">Time Spent</th> {/* NEW HEADER */}
+                <th className="py-3 px-6 text-center">Time Spent</th>
                 <th className="py-3 px-6 text-center">Result</th>
                 <th className="py-3 px-6 text-center">Marks</th>
-                <th className="py-3 px-6 text-center">Action</th> 
+                <th className="py-3 px-6 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="text-gray-600 text-sm font-light">
               {questions.map((q) => {
                 const isCorrect = q.answer === q.correct_answer;
                 const isUnattempted = q.answer === null;
-                const { yourAnswerText, correctAnswerText } = getOptionDisplay(q); 
+                const { yourAnswerText, correctAnswerText } = getOptionDisplay(q);
                 
-                // Accessing timeSpent (requires 'as any' for TypeScript safety)
                 const timeSpent = (q as any).timeSpent || 0; 
 
                 return (
                   <tr key={q.id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="py-3 px-6 text-left whitespace-nowrap font-medium">{q.id}</td>
                     
-                    {/* UPDATED: Display Option Letter + Text */}
+                    {/* UPDATED: Run raw text through parseText for KaTeX rendering */}
                     <td className={`py-3 px-6 text-left font-bold ${isCorrect ? 'text-green-600' : isUnattempted ? 'text-gray-400' : 'text-red-600'}`}>
-                      {yourAnswerText} 
+                      {parseText(yourAnswerText)} 
                     </td>
                     
-                    {/* UPDATED: Display Option Letter + Text */}
-                    <td className="py-3 px-6 text-left">{correctAnswerText}</td>
+                    {/* UPDATED: Run raw text through parseText for KaTeX rendering */}
+                    <td className="py-3 px-6 text-left">{parseText(correctAnswerText)}</td>
                     
-                    {/* NEW TIME SPENT CELL */}
                     <td className="py-3 px-6 text-center font-mono">
                        {formatTimeDetail(timeSpent)} 
                     </td>
@@ -144,7 +153,7 @@ const ResultsPage = ({ questions, results, onReviewQuestion }: Props) => {
                       {isUnattempted ? 0 : isCorrect ? `+${q.marks_correct}` : q.marks_negative}
                     </td>
                     
-                    {/* NEW ACTION COLUMN (Review Button) */}
+                    {/* ACTION COLUMN (Review Button) */}
                     <td className="py-3 px-6 text-center">
                       <button 
                         onClick={() => onReviewQuestion(q)}
