@@ -1,5 +1,4 @@
-// src/App.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import QuestionPalette from './components/QuestionPalette';
 import QuestionContent from './components/QuestionContent';
@@ -7,9 +6,9 @@ import Footer from './components/Footer';
 import SetupScreen from './components/SetupScreen';
 import ResultsPage from './components/ResultsPage';
 import { Question } from './types';
-// REMOVED: import defaultQuestionsData from './questions.json';
+// NOTE: defaultQuestionsData is removed in the full, corrected version
 import ReviewModal from './components/ReviewModal';
-
+// ... (rest of the file remains the same)
 function App() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -17,8 +16,11 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(0); 
   const [totalDuration, setTotalDuration] = useState(0);
 
+  // NEW STATE: Timer for the currently visible question
   const [questionTimer, setQuestionTimer] = useState(0); 
+  // NEW REF: To manage the question timer interval ID
   const questionTimerRef = useRef<NodeJS.Timeout | null>(null); 
+  // REF for Global Timer
   const globalTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [testStarted, setTestStarted] = useState(false);
@@ -120,7 +122,7 @@ function App() {
     
     // Safety check for mandatory input
     if (!customQuestions || customQuestions.length === 0) {
-        // Validation should prevent this, but is a final safety net.
+        // This should be handled by SetupScreen validation, but is a final safety net.
         return; 
     }
     
@@ -235,8 +237,6 @@ function App() {
       }
   };
 
-  // RENDERING LOGIC -----------------------------------------------------------
-
   if (!testStarted) {
     return <SetupScreen onStartTest={onStartTest} />;
   }
@@ -259,7 +259,7 @@ function App() {
     );
   }
   
-  // Safety Check: Avoid crash when questions array is empty
+  // FINAL FIX: Check if currentQuestion exists before rendering the main components
   if (!currentQuestion) {
       return (
           <div className="flex items-center justify-center h-screen text-2xl text-gray-500">
@@ -267,6 +267,7 @@ function App() {
           </div>
       );
   }
+
 
   return (
     <div className="flex flex-col h-screen font-sans">

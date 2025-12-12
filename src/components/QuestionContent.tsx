@@ -11,12 +11,6 @@ interface Props {
   // questionTimeElapsed: number; 
 }
 
-const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-};
-
 const parseText = (text: string) => {
   if (!text) return "";
   const parts = text.split('$');

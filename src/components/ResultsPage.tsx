@@ -1,5 +1,4 @@
 // src/components/ResultsPage.tsx
-import React from 'react';
 import { Question } from '../types';
 
 interface Props {
