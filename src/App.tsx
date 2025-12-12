@@ -17,11 +17,8 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(0); 
   const [totalDuration, setTotalDuration] = useState(0);
 
-  // NEW STATE: Timer for the currently visible question
   const [questionTimer, setQuestionTimer] = useState(0); 
-  // NEW REF: To manage the question timer interval ID
   const questionTimerRef = useRef<NodeJS.Timeout | null>(null); 
-  // REF for Global Timer
   const globalTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [testStarted, setTestStarted] = useState(false);
@@ -123,7 +120,7 @@ function App() {
     
     // Safety check for mandatory input
     if (!customQuestions || customQuestions.length === 0) {
-        // This should be handled by SetupScreen validation, but is a final safety net.
+        // Validation should prevent this, but is a final safety net.
         return; 
     }
     
@@ -238,6 +235,8 @@ function App() {
       }
   };
 
+  // RENDERING LOGIC -----------------------------------------------------------
+
   if (!testStarted) {
     return <SetupScreen onStartTest={onStartTest} />;
   }
@@ -260,7 +259,7 @@ function App() {
     );
   }
   
-  // FINAL FIX: Check if currentQuestion exists before rendering the main components
+  // Safety Check: Avoid crash when questions array is empty
   if (!currentQuestion) {
       return (
           <div className="flex items-center justify-center h-screen text-2xl text-gray-500">
@@ -268,7 +267,6 @@ function App() {
           </div>
       );
   }
-
 
   return (
     <div className="flex flex-col h-screen font-sans">
