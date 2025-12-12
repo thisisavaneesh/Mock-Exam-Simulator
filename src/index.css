@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Add this custom styling for DI Tables --- */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.prose th {
+  background-color: #f3f4f6; /* Gray-100 */
+  border: 1px solid #d1d5db; /* Gray-300 */
+  padding: 8px;
+  text-align: left;
+  font-weight: 700;
+  color: #1f2937; /* Gray-800 */
+}
+
+.prose td {
+  border: 1px solid #d1d5db; /* Gray-300 */
+  padding: 8px;
+  color: #374151; /* Gray-700 */
+}
+
+.prose tr:nth-child(even) {
+  background-color: #f9fafb; /* Gray-50 */
+}
+
+.prose strong {
+  font-weight: 700;
+  color: #111827;
+}
