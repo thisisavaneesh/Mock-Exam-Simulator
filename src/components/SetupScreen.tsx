@@ -130,7 +130,7 @@ const SetupScreen = ({ onStartTest }: Props) => {
               type="number"
               value={marksCorrect}
               onChange={(e) => setMarksCorrect(Number(e.target.value))}
-              className="w-fullQP border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
+              className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
             />
           </div>
           <div>
@@ -139,7 +139,7 @@ const SetupScreen = ({ onStartTest }: Props) => {
               type="number"
               value={marksNegative}
               onChange={(e) => setMarksNegative(Number(e.target.value))}
-              className="w-fullQP border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
+              className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
               placeholder="-1"
             />
           </div>
