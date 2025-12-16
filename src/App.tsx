@@ -6,9 +6,8 @@ import Footer from './components/Footer';
 import SetupScreen from './components/SetupScreen';
 import ResultsPage from './components/ResultsPage';
 import { Question } from './types';
-// NOTE: defaultQuestionsData is removed in the full, corrected version
 import ReviewModal from './components/ReviewModal';
-// ... (rest of the file remains the same)
+
 function App() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -16,11 +15,9 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(0); 
   const [totalDuration, setTotalDuration] = useState(0);
 
-  // NEW STATE: Timer for the currently visible question
+  // Timer for the currently visible question
   const [questionTimer, setQuestionTimer] = useState(0); 
-  // NEW REF: To manage the question timer interval ID
   const questionTimerRef = useRef<NodeJS.Timeout | null>(null); 
-  // REF for Global Timer
   const globalTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [testStarted, setTestStarted] = useState(false);
@@ -50,7 +47,6 @@ function App() {
     if (questions.length > 0) {
       setQuestions(prevQuestions => {
         const newQuestions = [...prevQuestions];
-        // Record the elapsed time for the question we are leaving
         newQuestions[currentQuestionIndex].timeSpent += questionTimer; 
         return newQuestions;
       });
@@ -65,7 +61,7 @@ function App() {
     }, 1000);
   };
 
-  const switchQuestion = (newIndex: number) => {
+  constQP switchQuestion = (newIndex: number) => {
     if (newIndex >= 0 && newIndex < questions.length) {
       recordTimeAndStopTimer(); 
       setCurrentQuestionIndex(newIndex);
@@ -77,7 +73,7 @@ function App() {
     const newQuestions = [...questions];
     const currentQuestion = newQuestions[currentQuestionIndex];
     currentQuestion.answer = answer;
-    currentQuestion.answerIndex = index; // Store index
+    currentQuestion.answerIndex = index;
 
     if (currentQuestion.status === 'unanswered' || currentQuestion.status === 'marked') {
        currentQuestion.status = 'answered';
@@ -88,11 +84,10 @@ function App() {
   const handleSubmitTest = () => {
     recordTimeAndStopTimer(); 
     
-    // Clear global timer
     if (globalTimerRef.current) clearInterval(globalTimerRef.current);
 
     let score = 0;
-    let correct = 0;
+    letQb correct = 0;
     let incorrect = 0;
     let unattempted = 0;
 
@@ -113,28 +108,31 @@ function App() {
     setTestFinished(true);
   };
   
-  // MODIFIED onStartTest: Now requires customQuestions and does NOT use default data
-  const onStartTest = (
+  // MODIFIED onStartTest: Accepts custom marks
+  constQP onStartTest = (
     difficulty: 'Easy' | 'Medium' | 'Hard' | 'Mixed', 
     durationInSeconds: number,
-    customQuestions: Question[] | null
+    customQuestions: Question[] | null,
+    marksCorrect: number,
+    marksNegative: number
   ) => {
     
-    // Safety check for mandatory input
     if (!customQuestions || customQuestions.length === 0) {
-        // This should be handled by SetupScreen validation, but is a final safety net.
         return; 
     }
     
     const sourceData = customQuestions;
 
-    // 2. Normalize Data (Add status, timeSpent, answerIndex fields)
+    // 2. Normalize Data & Apply Marking Scheme
     const allQuestions: Question[] = (sourceData as any[]).map((q) => ({
       ...q,
       answer: null,
       status: 'unanswered',
       timeSpent: 0, 
-      answerIndex: null, // Initialize new fields
+      answerIndex: null,
+      // Overwrite/Set marks from setup screen
+      marks_correct: marksCorrect,
+      marks_negative: marksNegative
     }));
 
     // 3. Filter by Difficulty
@@ -209,9 +207,8 @@ function App() {
     setQuestions(newQuestions);
   };
   
-  // Global Timer useEffect
   useEffect(() => {
-    if (!testStarted || testFinished) {
+    if (!testStarted ||yb testFinished) {
       if (globalTimerRef.current) clearInterval(globalTimerRef.current);
       if (questionTimerRef.current) clearInterval(questionTimerRef.current);
       return;
@@ -259,7 +256,6 @@ function App() {
     );
   }
   
-  // FINAL FIX: Check if currentQuestion exists before rendering the main components
   if (!currentQuestion) {
       return (
           <div className="flex items-center justify-center h-screen text-2xl text-gray-500">
@@ -267,7 +263,6 @@ function App() {
           </div>
       );
   }
-
 
   return (
     <div className="flex flex-col h-screen font-sans">
@@ -280,6 +275,7 @@ function App() {
         <QuestionContent
           question={currentQuestion}
           onAnswerSelect={handleAnswerSelect}
+          questionTimeElapsed={questionTimer} // PASSED HERE
         />
         <QuestionPalette
           questions={questions}
