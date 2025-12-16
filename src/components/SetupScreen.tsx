@@ -2,30 +2,35 @@ import { useState } from 'react';
 import { Question } from '../types';
 
 interface Props {
-  // Updated to accept custom questions array
+  // Updated to accept custom questions array and marking scheme
   onStartTest: (
     difficulty: 'Easy' | 'Medium' | 'Hard' | 'Mixed', 
     durationInSeconds: number, 
-    customQuestions: Question[] | null
+    customQuestions: Question[] | null,
+    marksCorrect: number,
+    marksNegative: number
   ) => void;
 }
 
 const SetupScreen = ({ onStartTest }: Props) => {
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | 'Mixed'>('Mixed');
   const [minutes, setMinutes] = useState<number>(120);
-  const [jsonInput, setJsonInput] = useState<string>(''); // State for JSON input
+  const [jsonInput, setJsonInput] = useState<string>(''); 
   const [error, setError] = useState<string | null>(null);
+
+  // NEW: State for customization
+  const [marksCorrect, setMarksCorrect] = useState<number>(4);
+  const [marksNegative, setMarksNegative] = useState<number>(-1);
 
   const handleStart = () => {
     const durationInSeconds = minutes * 60;
     
-    // NEW MANDATORY CHECK 1: Time
+    // Safety Checks
     if(durationInSeconds <= 0) {
         setError("Please enter a valid time (in minutes).");
         return;
     }
     
-    // NEW MANDATORY CHECK 2: JSON Input
     if (!jsonInput.trim()) {
         setError("Question JSON is mandatory. Please paste the questions to start the exam.");
         return;
@@ -33,27 +38,24 @@ const SetupScreen = ({ onStartTest }: Props) => {
 
     let parsedQuestions: Question[] | null = null;
 
-    // Logic: Try to parse the mandatory JSON input
     try {
         parsedQuestions = JSON.parse(jsonInput);
         if (!Array.isArray(parsedQuestions)) {
           throw new Error("JSON must be an array of questions.");
         }
-        // Basic validation: Check if first item has an ID and question_text
         if (parsedQuestions.length === 0 || !parsedQuestions[0].question_text) {
            throw new Error("Empty array or invalid question format. Missing 'question_text'.");
         }
         setError(null);
     } catch (e: any) {
         setError("Invalid JSON: " + e.message);
-        return; // Stop if JSON is bad
+        return; 
     }
 
-    // Pass data to App.tsx
-    onStartTest(difficulty, durationInSeconds, parsedQuestions);
+    // Pass new customization params to App.tsx
+    onStartTest(difficulty, durationInSeconds, parsedQuestions, marksCorrect, marksNegative);
   };
 
-  // Updated Placeholder Text for Math and DI
   const placeholderText = `[
   {
     "id": 1,
@@ -63,21 +65,7 @@ const SetupScreen = ({ onStartTest }: Props) => {
     "context": null,
     "question_text": "Find the value of $\\sqrt{4} + \\frac{1}{2}$.",
     "options": ["2.5", "3", "4", "4.5"],
-    "correct_answer": "2.5",
-    "marks_correct": 4,
-    "marks_negative": -1
-  },
-  {
-    "id": 2,
-    "section": "Data Interpretation",
-    "topic": "Table Chart",
-    "difficulty": "Medium",
-    "context": "<p><strong>Data:</strong> Sales in 2024</p><table style='width:100%; border:1px solid #ccc; border-collapse:collapse;'><thead><tr><th style='border:1px solid #ccc; padding:5px;'>Month</th><th>Units</th></tr></thead><tbody><tr><td style='border:1px solid #ccc; padding:5px;'>Jan</td><td>100</td></tr><tr><td style='border:1px solid #ccc; padding:5px;'>Feb</td><td>150</td></tr></tbody></table>",
-    "question_text": "What is the total sales in January and February?",
-    "options": ["200", "250", "300", "350"],
-    "correct_answer": "250",
-    "marks_correct": 4,
-    "marks_negative": -1
+    "correct_answer": "2.5"
   }
 ]`;
 
@@ -90,7 +78,6 @@ const SetupScreen = ({ onStartTest }: Props) => {
         <div className="mb-6">
           <label className="block text-gray-700 font-bold mb-2">
             Step 1: Paste Questions JSON (REQUIRED)
-            {/* REMOVED: Optional message */}
           </label>
           <textarea
             className="w-full border border-gray-300 rounded p-2 h-40 font-mono text-sm focus:outline-none focus:border-blue-500"
@@ -98,13 +85,13 @@ const SetupScreen = ({ onStartTest }: Props) => {
             value={jsonInput}
             onChange={(e) => {
               setJsonInput(e.target.value);
-              setError(null); // Clear error on change
+              setError(null);
             }}
           />
           {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           {/* Step 2: Difficulty */}
           <div>
             <label htmlFor="difficulty" className="block text-gray-700 font-bold mb-2">Step 2: Difficulty</label>
@@ -131,6 +118,29 @@ const SetupScreen = ({ onStartTest }: Props) => {
               onChange={(e) => setMinutes(parseInt(e.target.value) || 0)}
               className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
               min="1"
+            />
+          </div>
+        </div>
+
+        {/* Step 4: Marking Scheme (NEW) */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-gray-700 font-bold mb-2">Marks per Correct</label>
+            <input
+              type="number"
+              value={marksCorrect}
+              onChange={(e) => setMarksCorrect(Number(e.target.value))}
+              className="w-fullQP border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-bold mb-2">Marks per Wrong</label>
+            <input
+              type="number"
+              value={marksNegative}
+              onChange={(e) => setMarksNegative(Number(e.target.value))}
+              className="w-fullQP border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
+              placeholder="-1"
             />
           </div>
         </div>
