@@ -7,8 +7,7 @@ import { InlineMath } from 'react-katex';
 interface Props {
   question: Question;
   onAnswerSelect: (answer: string, index: number) => void;
-  // REMOVE: We are removing this prop as running timer should not be passed to Review Modal.
-  // questionTimeElapsed: number; 
+  questionTimeElapsed: number; // Re-added prop
 }
 
 const parseText = (text: string) => {
@@ -26,8 +25,14 @@ const getOptionLetter = (index: number): string => {
     return String.fromCharCode(65 + index); 
 };
 
-// Removed questionTimeElapsed from component definition
-const QuestionContent = ({ question, onAnswerSelect }: Props) => { 
+// Helper to format seconds to mm:ss
+const formatTime = (seconds: number) => {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+};
+
+const QuestionContent = ({ question, onAnswerSelect, questionTimeElapsed }: Props) => { 
   
   // RENDER OPTION 1: DI/RC Layout (Split Screen)
   if (question.context) {
@@ -46,10 +51,16 @@ const QuestionContent = ({ question, onAnswerSelect }: Props) => {
 
         {/* RIGHT PANEL: The Question */}
         <div className="w-1/2 p-6 overflow-y-auto">
-           {/* REMOVED: Running timer display from here, it should only be in the main header */}
-          <h2 className="text-xl font-bold mb-6 text-blue-900">
-            Question {question.id}
-          </h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-blue-900">
+              Question {question.id}
+            </h2>
+            {/* Added Timer Display */}
+            <div className="bg-gray-200 px-3 py-1 rounded text-gray-700 font-mono text-sm font-bold">
+              Time: {formatTime(questionTimeElapsed)}
+            </div>
+          </div>
+
           <div className="text-lg mb-6">{parseText(question.question_text)}</div>
           
           <div className="space-y-3">
@@ -86,9 +97,12 @@ const QuestionContent = ({ question, onAnswerSelect }: Props) => {
   // RENDER OPTION 2: Normal Layout (Full Width)
   return (
     <main className="flex-1 p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6 border-b pb-3"> {/* New line */}
+      <div className="flex justify-between items-center mb-6 border-b pb-3"> 
           <h2 className="text-xl font-bold text-blue-900">Question {question.id}</h2>
-          {/* REMOVED: Running timer display from here */}
+          {/* Added Timer Display */}
+          <div className="bg-gray-200 px-3 py-1 rounded text-gray-700 font-mono text-sm font-bold">
+              Time: {formatTime(questionTimeElapsed)}
+          </div>
       </div>
       
       <div className="text-lg mb-6 leading-relaxed">
