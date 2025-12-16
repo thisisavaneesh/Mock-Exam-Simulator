@@ -47,6 +47,10 @@ function App() {
     if (questions.length > 0) {
       setQuestions(prevQuestions => {
         const newQuestions = [...prevQuestions];
+        // Ensure timeSpent is initialized
+        if (typeof newQuestions[currentQuestionIndex].timeSpent !== 'number') {
+            newQuestions[currentQuestionIndex].timeSpent = 0;
+        }
         newQuestions[currentQuestionIndex].timeSpent += questionTimer; 
         return newQuestions;
       });
@@ -61,7 +65,7 @@ function App() {
     }, 1000);
   };
 
-  constQP switchQuestion = (newIndex: number) => {
+  const switchQuestion = (newIndex: number) => {
     if (newIndex >= 0 && newIndex < questions.length) {
       recordTimeAndStopTimer(); 
       setCurrentQuestionIndex(newIndex);
@@ -87,7 +91,7 @@ function App() {
     if (globalTimerRef.current) clearInterval(globalTimerRef.current);
 
     let score = 0;
-    letQb correct = 0;
+    let correct = 0;
     let incorrect = 0;
     let unattempted = 0;
 
@@ -109,7 +113,7 @@ function App() {
   };
   
   // MODIFIED onStartTest: Accepts custom marks
-  constQP onStartTest = (
+  const onStartTest = (
     difficulty: 'Easy' | 'Medium' | 'Hard' | 'Mixed', 
     durationInSeconds: number,
     customQuestions: Question[] | null,
@@ -208,7 +212,7 @@ function App() {
   };
   
   useEffect(() => {
-    if (!testStarted ||yb testFinished) {
+    if (!testStarted || testFinished) {
       if (globalTimerRef.current) clearInterval(globalTimerRef.current);
       if (questionTimerRef.current) clearInterval(questionTimerRef.current);
       return;
